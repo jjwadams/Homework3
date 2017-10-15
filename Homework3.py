@@ -1,5 +1,6 @@
 import numpy as np
 import scipy as sp
+import sys
 import numpy.random as rnd
 import matplotlib.pyplot as plt
 import numpy.linalg as la
@@ -42,15 +43,21 @@ def fnL96( x0, t0, tMax, dt, F = 8. ):
     return fnRK4( x0, t0, tMax, dt, f )
 
 def fnL( n, r, p = 1 ):
-    L = np.tile( np.arange( n ), ( n, 1 ) )
-    L = np.exp( -np.abs( L - L.T )**p / r )
+    if r == 0:
+        L = 1
+    else:
+        L = np.tile( np.arange( n ), ( n, 1 ) )
+        L = np.exp( -np.abs( L - L.T )**p / r )
     return L
     
 def fnLcirc( n, r, p = 2 ):
-    L = np.tile( np.arange( n ), ( n, 1 ) )
-    Lc = np.cos( 2*np.pi*L/n )
-    Ls = np.sin( 2*np.pi*L/n )
-    L = np.exp( -( np.abs( Lc - Lc.T )**p + np.abs( Ls - Ls.T )**p ) / r )
+    if r == 0:
+        L = 1
+    else:
+        L = np.tile( np.arange( n ), ( n, 1 ) )
+        Lc = np.cos( 2*np.pi*L/n )
+        Ls = np.sin( 2*np.pi*L/n )
+        L = np.exp( -( np.abs( Lc - Lc.T )**p + np.abs( Ls - Ls.T )**p ) / r )
     return L
 
 ## Perturbed Observation EnKF
@@ -109,7 +116,7 @@ def fnPOEnKF( x, y, M, H, R, dtx = 0.01, dty = 0.1, a = 0, L = 1 ):
         muf = np.mean( xf, axis = 1 )
         Xf = np.sqrt( 1+a ) * ( xf - np.tile( muf, ( nE, 1 ) ).T )
         xf = Xf + np.tile( muf, ( nE, 1 ) ).T
-        Pf = L * np.cov( Xf )
+        Pf = L * Xf.dot( Xf ) / ( nE - 1 )
         K = Pf.dot( la.solve( ( R + H.dot( Pf.dot( H.T ) ) ).T, H ).T )
         
         mua = muf + K.dot( y[ :, k ] - H.dot( muf ) )
@@ -160,15 +167,9 @@ def fnSqrtEnKF( x, y, M, H, R, dtx = 0.01, dty = 0.1, a = 0, L = 1 ):
         
         V = H.dot( Xf ).T
         
-        # print( 'V.shape: ', V.shape )
-        # print( 'H.shape: ', H.shape )
-        # print( 'Xf.shape: ', Xf.shape )
         Mtmp = V.dot( la.solve( R, V.T ) ) 
         Mtmp = ( Mtmp + Mtmp.T ) / 2
         [ D, U ] = la.eigh( Mtmp )
-        # print( 'D.shape: ', D.shape )
-        # D[ D < 0 ] = 0
-        # print( 'D: ', D )
         Z = U.dot( np.diag( 1 / np.sqrt( 1+D ) ) ).dot( U.T )
         Xa = Xf.dot( Z )
         
@@ -186,8 +187,23 @@ def fnSqrtEnKF( x, y, M, H, R, dtx = 0.01, dty = 0.1, a = 0, L = 1 ):
 # dimensionless time units. This should bring you close to the attractor. Use the 
 # final state of this simulation as your initial condition for the simulations below.
 
-nD = 40
-F = 8
+if "--nD" in sys.argv:
+    nD = sys.argv[ sys.argv.index( "--nD" ) + 1 ]        
+else:
+    nD = 40
+if "--F" in sys.arv:
+    F = sys.argv[ sys.argv.index( "--F" ) + 1 ]
+else:
+    F = 8
+if "--a" in sys.argv:
+    a = sys.argv[ sys.argv.index( "--F" ) + 1 ]
+else:
+    a = 0
+if "--r" in sys.argv:
+    r = sys.argv[ sys.argv.index( "--r" ) + 1 ]
+else:
+    r = 1
+
 t0 = 0.
 tMax = 100.
 dt = 0.01
@@ -251,7 +267,7 @@ nStep = int( np.floor( ( tMax - t0 ) / dt ) )
 
 xEnsTot = fnL96( x0, t0, tMax, dt )
 
-nE = 25
+nE = 20
 rgi = rnd.randint( 0, nStep+1, nE )
 
 xEns = xEnsTot[ :, rgi ]
@@ -267,10 +283,10 @@ H = np.eye( nD )
 H = H[ rg1, : ]
 R = np.eye( nO )
 
-xOutPO, spread = fnPOEnKF( xEns, xData, fnL96, H, R, a = 0.1, L = fnLcirc( nD, 1 ) )
+xOutPO, spreadPO = fnPOEnKF( xEns, xData, fnL96, H, R, a = a, L = fnLcirc( nD, r ) )
 xOutPOMean = np.mean( xOutPO, axis = 1 )
 RMSEPO = np.sqrt( np.mean( ( xTrue - xOutPOMean[ :, 1: ] ) ** 2, 0 ) )
 
-xOutSqrt, spreadSqrt = fnSqrtEnKF( xEns, xData, fnL96, H, R, a = 0.1, L = fnLcirc( nD, 1 ) )
+xOutSqrt, spreadSqrt = fnSqrtEnKF( xEns, xData, fnL96, H, R, a = a, L = fnLcirc( nD, r ) )
 xOutSqrtMean = np.mean( xOutSqrt, axis = 1 )
 RMSESqrt = np.sqrt( np.mean( ( xTrue - xOutSqrtMean[ :, 1: ] ) ** 2, 0 ) )

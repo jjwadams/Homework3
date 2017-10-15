@@ -1,0 +1,13 @@
+#!/bin/bash
+#PBS -N mpi_hello_world
+#PBS -W group_list=mmo
+#PBS -q windfall 
+#PBS -l select=1:ncpus=1:mem=6gb:pcmem=6gb 
+#PBS -l walltime=0:1:0 
+#PBS -l cput=0:1:0 
+
+module load python
+
+cd ~/DandI/Homework3
+	
+python3 Homework3.py --nD 40 --F 8 
