@@ -84,7 +84,19 @@ def fnGetAll( strSaveDir = "./Outfiles", strRegEx = r"a([\d.\-\+]+)r([\d.\-\+]+)
             rgSpread.append( [ dictPath[ "spreadPO" ], dictPath[ "spreadSqrt" ] ] )
             rgRMSE.append( [ dictPath[ "RMSEPO" ], dictPath[ "RMSESqrt" ] ] )
 
-    return np.array( rga ), np.array( rgr ), np.array( rgSpread ), np.array( rgRMSE )
+
+    rga = np.array( rga )
+    rgr = np.array( rgr )
+    rgSpread = np.array( rgSpread )
+    rgRMSE = np.array( rgRMSE )
+
+    iSort = np.lexsort( ( rgr, rga ) )
+    rga = rga[ iSort ]
+    rgr = rgr[ iSort ]
+    rgSpread = rgSpread[ iSort ]
+    rgRMSE = rgRMSE[ iSort ]
+
+    return rga, rgr, rgSpread, rgRMSE
 
 def fnPlotVals( rgVals, strTitle, stryLabel = r'$\alpha$ from 0 to 1.95 by 0.5',
 				strxLabel = r'$r$ from $10^{-1}$ to $10^{1.9}$ with the exponent by 0.1' ):
