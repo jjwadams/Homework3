@@ -3,7 +3,7 @@
 #PBS -W group_list=mmo
 #PBS -q windfall 
 #PBS -m bea
-#PBS -M jadams@math.arizona.edu
+#PBS -M jesseadams@email.arizona.edu
 #PBS -l select=1:ncpus=28:mem=168gb:pcmem=6gb 
 #PBS -l walltime=12:00:00 
 #PBS -l cput=336:00:00 
@@ -12,12 +12,18 @@ module load python
 
 cd ~jesseadams/DandI/Homework3
 date
-	
-for a in {0..100..1}
+
+rga=$(seq 0 100)
+rgr=$(seq 0 30)
+
+for a in ${rga}
 do
-	for r in {0..30..1}
-		python3 Homework3.main( $a/1e2, $r/1e1 ) &
+	for r in ${rgr}
+	do
+		echo "Submitting job Homework3.main( ${a}/1e2, ${r}/1e1 )"
+		python3 -c "import Homework3; Homework3.main( ${a}/1e2, ${r}/1e1 )" &
 	done
 done
 
+wait
 date

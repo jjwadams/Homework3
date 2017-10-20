@@ -12,6 +12,11 @@ from pathlib import Path
 from mpl_toolkits.mplot3d import Axes3D
 from HW3fns import fnL96, fnL, fnLcirc, fnPOEnKF, fnSqrtEnKF
 
+def test( a = 0, r = 1 ):
+    strTextFile = "test.txt"
+    with open( strTextFile, 'a' ) as fiText:
+        fiText.write( "Finished a = %f, r = %f\n"%( a, r ) ) 
+    
 
 def main( a = 0, r = 1, strLoadFile = "HW3Data.dat" ):
     # if "--a" in sys.argv:
@@ -32,15 +37,17 @@ def main( a = 0, r = 1, strLoadFile = "HW3Data.dat" ):
 
         F = dictLoad[ "F" ]
         xData = dictLoad[ "xData" ]
+        xEnsTot = dictLoad[ "xEnsTot" ]
         xEns = dictLoad[ "xEns" ]
         xTrue = dictLoad[ "xTrue" ]
         H = dictLoad[ "H" ]
         R = dictLoad[ "R" ]
 
-        [ nD, nE ] = xEns.shape
+        [ nD, nETot ] = xEnsTot.shape
+        nE = xEns.shape[ 1 ]
 
-        # rgi = rnd.randint( 0, nStep+1, nE )
-        # xEns = xEnsTot[ :, rgi ]
+        rgi = rnd.randint( 1, nETot+1, nE )
+        xEns = xEnsTot[ :, rgi ]
 
     print( "Starting a = %s, r = %s"%( a, r ) )
 
@@ -52,14 +59,16 @@ def main( a = 0, r = 1, strLoadFile = "HW3Data.dat" ):
     xOutSqrtMean = np.mean( xOutSqrt, axis = 1 )
     RMSESqrt = np.sqrt( np.mean( ( xTrue - xOutSqrtMean[ :, 1: ] ) ** 2, 0 ) )
 
-    strSaveFile = "./outFiles/a%sr%s.dat"%( a, r )
+    strSaveFile = "outFiles/a%sr%s.dat"%( a, r )
     dictSave = { "spreadPO": spreadPO, "RMSEPO": RMSEPO, "spreadSqrt": spreadSqrt, 
                  "RMSESqrt": RMSESqrt }
 
     with open( strSaveFile, 'wb' ) as fiSave:
         pickle.dump( dictSave, fiSave )
 
-
+    strTextFile = "outFiles/test.txt"
+    with open( strTextFile, 'a' ) as fiText:
+        fiText.write( "Finished a = %f, r = %f\n"%( a, r ) ) 
 
 def fnGetAll( strSaveDir = "./Outfiles", strRegEx = r"a([\d.\-\+]+)r([\d.\-\+]+)" ):
     regex = re.compile( strRegEx )
