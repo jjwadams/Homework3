@@ -54,7 +54,7 @@ plt.plot( rgt, rgx.T )
 # identity matrix).
 
 x0 = rgx[ :, -1 ]
-tMax = 10.
+tMax = 100.
 nStep = int( np.floor( ( tMax - t0 ) / dt ) )
 
 rgxNew = fnL96( x0, t0, tMax, dt )
@@ -95,7 +95,7 @@ nStep = int( np.floor( ( tMax - t0 ) / dt ) )
 
 xEnsTot = fnL96( x0, t0, tMax, dt )
 
-rgi = rnd.randint( 0, nStep+1, nE )
+rgi = rnd.randint( 1, nStep+2, nE )
 
 xEns = xEnsTot[ :, rgi ]
 
