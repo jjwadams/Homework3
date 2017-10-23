@@ -59,14 +59,14 @@ def main( a = 0, r = 1, strSaveDir = "./outFiles", strLoadFile = "HW3Data.dat" )
     xOutSqrtMean = np.mean( xOutSqrt, axis = 1 )
     RMSESqrt = np.sqrt( np.mean( ( xTrue - xOutSqrtMean[ :, 1: ] ) ** 2, 0 ) )
 
-    strSaveFile = "{}/a{}r{}.dat"%( strSaveDir, a, r )
+    strSaveFile = "%s/a%sr%s.dat"%( strSaveDir, a, r )
     dictSave = { "spreadPO": spreadPO, "RMSEPO": RMSEPO, "spreadSqrt": spreadSqrt, 
                  "RMSESqrt": RMSESqrt }
 
     with open( strSaveFile, 'wb' ) as fiSave:
         pickle.dump( dictSave, fiSave )
 
-    strTextFile = "{}/test.txt"%( strSaveDir )
+    strTextFile = "%s/test.txt"%( strSaveDir )
     with open( strTextFile, 'a' ) as fiText:
         fiText.write( "Finished a = %f, r = %f\n"%( a, r ) ) 
 
