@@ -18,7 +18,7 @@ def test( a = 0, r = 1 ):
         fiText.write( "Finished a = %f, r = %f\n"%( a, r ) ) 
     
 
-def main( a = 0, r = 1, strLoadFile = "HW3Data.dat" ):
+def main( a = 0, r = 1, strSaveDir = "./outFiles", strLoadFile = "HW3Data.dat" ):
     # if "--a" in sys.argv:
     #     a = sys.argv[ sys.argv.index( "--a" ) + 1 ]
     # else:
@@ -59,14 +59,14 @@ def main( a = 0, r = 1, strLoadFile = "HW3Data.dat" ):
     xOutSqrtMean = np.mean( xOutSqrt, axis = 1 )
     RMSESqrt = np.sqrt( np.mean( ( xTrue - xOutSqrtMean[ :, 1: ] ) ** 2, 0 ) )
 
-    strSaveFile = "outFiles/a%sr%s.dat"%( a, r )
+    strSaveFile = "{}/a{}r{}.dat"%( strSaveDir, a, r )
     dictSave = { "spreadPO": spreadPO, "RMSEPO": RMSEPO, "spreadSqrt": spreadSqrt, 
                  "RMSESqrt": RMSESqrt }
 
     with open( strSaveFile, 'wb' ) as fiSave:
         pickle.dump( dictSave, fiSave )
 
-    strTextFile = "outFiles/test.txt"
+    strTextFile = "{}/test.txt"%( strSaveDir )
     with open( strTextFile, 'a' ) as fiText:
         fiText.write( "Finished a = %f, r = %f\n"%( a, r ) ) 
 
